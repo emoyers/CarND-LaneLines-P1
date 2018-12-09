@@ -75,29 +75,29 @@ def draw_lines(img, lines, color=[255, 0, 0], thickness=4):
         for x1,y1,x2,y2 in line:
             slope = ((y2-y1)/(x2-x1))
             if slope > 0:
-            	if count_r == 0:
-            		line_r = line
-            	else:
-            	    line_r = (line_r + line) / 2
-            	count_r += 1
+                if count_r == 0:
+                    line_r = line
+                else:
+                    line_r = (line_r + line) / 2
+                count_r += 1
             else:
-            	if count_l == 0:
-            		line_l = line
-            	else:
-            	    line_l = (line_l + line) / 2
-            	count_l += 1
+                if count_l == 0:
+                    line_l = line
+                else:
+                    line_l = (line_l + line) / 2
+                count_l += 1
 
     #getting slope(m) and b for each line y = mx + b
     for x1,y1,x2,y2 in line_r:
-    	slope_r = ((y2-y1)/(x2-x1))
-    	b_r = y1 - (slope_r*x1)
+        slope_r = ((y2-y1)/(x2-x1))
+        b_r = y1 - (slope_r*x1)
     #calculating the point that intersect the X axis
     y2_r = img.shape[0]
     x2_r = np.int16((y2_r-b_r) / slope_r)
 
     for x1,y1,x2,y2 in line_l:
-    	slope_l = ((y2-y1)/(x2-x1))
-    	b_l = y1 - (slope_l*x1)
+        slope_l = ((y2-y1)/(x2-x1))
+        b_l = y1 - (slope_l*x1)
     #calculating the point that intersect the X axis
     y1_l = img.shape[0]
     x1_l = np.int16((y1_l-b_l) / slope_l)
@@ -140,53 +140,58 @@ def weighted_img(img, initial_img, α=0.8, β=1., γ=0.):
     return cv2.addWeighted(initial_img, α, img, β, γ)
 
 def process_image(path):
-	#reading in an image
-	if type(path) == type("String"):
-		image = mpimg.imread(path)
-	else:
-		image = path
+    #reading in an image
+    if type(path) == type("String"):
+        image = mpimg.imread(path)
+    else:
+        image = path
 
-	#making the image gray
-	gray_image = grayscale(image)
+    #making the image gray
+    gray_image = grayscale(image)
+    cv2.imwrite(os.path.join("test_images_output/" , "out_gray_"+file), cv2.cvtColor(gray_image, cv2.COLOR_RGB2BGR))
 
-	#blur image to remove noise and make easier to fine edges
-	blur_image = gaussian_blur(gray_image, 7)
+    #blur image to remove noise and make easier to fine edges
+    blur_image = gaussian_blur(gray_image, 7)
+    cv2.imwrite(os.path.join("test_images_output/" , "out_blur_"+file), cv2.cvtColor(blur_image, cv2.COLOR_RGB2BGR))
 
-	#get edges of the blur image to identify easily the lines in the road
-	edges = canny(blur_image, 145, 170)
+    #get edges of the blur image to identify easily the lines in the road
+    edges = canny(blur_image, 145, 170)
+    cv2.imwrite(os.path.join("test_images_output/" , "out_edges_"+file), cv2.cvtColor(edges, cv2.COLOR_RGB2BGR))
 
-	#eliminate the rest of the pixels that al not within the poligon with vertices [150,540],[400,300],[600,300],[900,540]
-	vertices = np.array([[np.int32(image.shape[1]*0.10),image.shape[0]],[(image.shape[1]*0.39),(image.shape[0]*0.65)],[(image.shape[1]*0.57),(image.shape[0]*0.57)],[(image.shape[1]*0.94),image.shape[0]],[(image.shape[1]*0.45),(image.shape[0]*0.87)],[(image.shape[1]*0.49),(image.shape[0]*0.87)],], np.int32)
-	edges_w_region = region_of_interest(edges, [vertices])
+    #eliminate the rest of the pixels that al not within the poligon with vertices [150,540],[400,300],[600,300],[900,540]
+    vertices = np.array([[np.int32(image.shape[1]*0.10),image.shape[0]],[(image.shape[1]*0.39),(image.shape[0]*0.65)],[(image.shape[1]*0.57),(image.shape[0]*0.57)],[(image.shape[1]*0.94),image.shape[0]],[(image.shape[1]*0.45),(image.shape[0]*0.87)],[(image.shape[1]*0.49),(image.shape[0]*0.87)],], np.int32)
+    edges_w_region = region_of_interest(edges, [vertices])
+    cv2.imwrite(os.path.join("test_images_output/" , "out_edges_w_region_"+file), cv2.cvtColor(edges_w_region, cv2.COLOR_RGB2BGR))
 
-	#Apply Hough Transform to convert points into lines
-	RHO = 2
-	THETA = np.pi/180
-	THRESHOLD = 15
-	MIN_LINE_LENGTH = 40
-	MAX_LINE_GAP = 20
-	hough_image = hough_lines(edges_w_region, RHO, THETA, THRESHOLD, MIN_LINE_LENGTH, MAX_LINE_GAP)
+    #Apply Hough Transform to convert points into lines
+    RHO = 2
+    THETA = np.pi/180
+    THRESHOLD = 15
+    MIN_LINE_LENGTH = 40
+    MAX_LINE_GAP = 20
+    hough_image = hough_lines(edges_w_region, RHO, THETA, THRESHOLD, MIN_LINE_LENGTH, MAX_LINE_GAP)
+    cv2.imwrite(os.path.join("test_images_output/" , "out_hough_image_"+file), cv2.cvtColor(hough_image, cv2.COLOR_RGB2BGR))
 
-	#
-	alpha = 0.60
-	beta = ( 1.0 - alpha );
-	init_image_w_lines = weighted_img(hough_image, image,alpha,beta,0.)
+    #
+    alpha = 0.60
+    beta = ( 1.0 - alpha );
+    init_image_w_lines = weighted_img(hough_image, image,alpha,beta,0.)
+    cv2.imwrite(os.path.join("test_images_output/" , "out_"+file), cv2.cvtColor(init_image_w_lines, cv2.COLOR_RGB2BGR))
 
-	#printing out some stats and plotting
-	print('This image is:', type(init_image_w_lines), 'with dimensions:', init_image_w_lines.shape)
-	fig = plt.figure(figsize=(20, 20))
-	fig.add_subplot(2, 2, 1)
-	plt.imshow(image) 
-	fig.add_subplot(2, 2, 2)
-	plt.imshow(edges_w_region, cmap= 'gray')
-	fig.add_subplot(2, 2, 3)
-	plt.imshow(hough_image, cmap= 'gray') 
-	fig.add_subplot(2, 2, 4)
-	cv2.imwrite(os.path.join("test_images_output/" , "out_"+file), cv2.cvtColor(init_image_w_lines, cv2.COLOR_RGB2BGR))
-	plt.imshow(init_image_w_lines) 
-	# if you wanted to show a single color channel image called 'gray', for example, call as plt.imshow(gray, cmap='gray')
-	#plt.show()
-	return init_image_w_lines
+    #printing out some stats and plotting
+    print('This image is:', type(init_image_w_lines), 'with dimensions:', init_image_w_lines.shape)
+    fig = plt.figure(figsize=(20, 20))
+    fig.add_subplot(2, 2, 1)
+    plt.imshow(image) 
+    fig.add_subplot(2, 2, 2)
+    plt.imshow(edges_w_region, cmap= 'gray')
+    fig.add_subplot(2, 2, 3)
+    plt.imshow(hough_image, cmap= 'gray') 
+    fig.add_subplot(2, 2, 4)
+    plt.imshow(init_image_w_lines) 
+    # if you wanted to show a single color channel image called 'gray', for example, call as plt.imshow(gray, cmap='gray')
+    #plt.show()
+    return init_image_w_lines
 
 list_images = os.listdir("test_images/")
 for file in list_images:
@@ -202,4 +207,4 @@ white_output = 'test_videos/solidYellowLeft.mp4'
 ##clip1 = VideoFileClip(white_output).subclip(0,5)
 clip1 = VideoFileClip(white_output)
 white_clip = clip1.fl_image(process_image)
-white_clip.write_videofile("test_videos_output/final_video.mp4")
+#white_clip.write_videofile("test_videos_output/final_video.mp4")
