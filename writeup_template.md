@@ -14,7 +14,12 @@ The goals / steps of this project are the following:
 
 [//]: # (Image References)
 
-[image1]: ./examples/grayscale.jpg "Grayscale"
+[image1]: ./test_images_output/out_gray_solidWhiteCurve.jpg "Grayscale"
+[image2]: ./test_images_output/out_blur_solidWhiteCurve.jpg "Grayscale"
+[image3]: ./test_images_output/out_edges_solidWhiteCurve.jpg 
+[image4]: ./test_images_output/out_edges_w_region_solidWhiteCurve.jpg
+[image5]: ./test_images_output/out_hough_image_solidWhiteCurve.jpg
+[image6]: ./test_images_output/out_solidWhiteCurve.jpg
 
 ---
 
@@ -29,6 +34,22 @@ right base on their slopes to take an average 2 lines, one for the right side an
 If you'd like to include images to show how the pipeline works, here is how to include an image: 
 
 ![alt text][image1]
+**Gray Image**
+
+![alt text][image2]
+**Blur Image**
+
+![alt text][image3]
+**Edges of the image using Canny algorithm**
+
+![alt text][image4]
+**Egdes of the region of interest**
+
+![alt text][image5]
+**Hough transform with averaged and extrapolated lines**
+
+![alt text][image6]
+**Original image with lines**
 
 
 ### 2. Identify potential shortcomings with your current pipeline
