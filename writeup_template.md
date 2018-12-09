@@ -20,11 +20,11 @@ The goals / steps of this project are the following:
 
 ### Reflection
 
-### 1. Describe your pipeline. As part of the description, explain how you modified the draw_lines() function.
+My pipeline consisted of 5 steps. First, I converted the images to grayscale, then I blured the image to clean the image for excessive noise which make simple to find edges. After that used Canny algorith to find the edges
+of the images base on the gradients each part of the image has. Next, I remove the part of the image that I was not interested in with the function fillPolly, giving it the points of the polygon I'm interested on. Then I apply the Hough Transform to convert the points found with Canny algorith into lines, giving the maximum reparation between lines, a threshold and the minimum lenght of the line. Finally I averaged and extropolate the lines to be draw in the original image or video.
 
-My pipeline consisted of 5 steps. First, I converted the images to grayscale, then I .... 
-
-In order to draw a single line on the left and right lanes, I modified the draw_lines() function by ...
+In order to draw a single line on the left and right lanes, I modified the draw_lines() function by sepation the lines in left and
+right base on their slopes to take an average 2 lines, one for the right side and one for the left side. After that I calculate the m and b of each line (y = mx + b) to be able to calculate the points of each line intersecting x axis and intersection x equal to 0.6 the maximum value of y.
 
 If you'd like to include images to show how the pipeline works, here is how to include an image: 
 
@@ -34,13 +34,13 @@ If you'd like to include images to show how the pipeline works, here is how to i
 ### 2. Identify potential shortcomings with your current pipeline
 
 
-One potential shortcoming would be what would happen when ... 
+One potential shortcoming would be what would happen when a line is present in the ground without being a lane line. 
 
-Another shortcoming could be ...
+Another shortcoming could be the diferent types of light for example shadows or night light.
 
 
 ### 3. Suggest possible improvements to your pipeline
 
-A possible improvement would be to ...
+A possible improvement would be to refine the area of interested to maintain a more constant line without errors.
 
-Another potential improvement could be to ...
+Another potential improvement could be to make a better filtering to avoid confusion with shadows or other lines in the paviment.
